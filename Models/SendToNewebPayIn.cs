@@ -13,5 +13,6 @@
 		public string NotifyURL { get; set; }
 		public string ClientBackURL { get; set; }
 		public string Email { get; set; }
+		public string PayOption { get; set; }
 	}
 }
