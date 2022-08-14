@@ -7,17 +7,22 @@ namespace WebApplication1.Service
 {
     public class NewebpayService : ICommerce
 	{
+		public IConfiguration Config { get; set; }
+
+		public NewebpayService()
+		{
+			Config = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
+		}
+
+
 		public string GetCallBack(SendToNewebPayIn inModel)
         {
-			SendToNewebPayOut outModel = new SendToNewebPayOut();
-			IConfiguration Config = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
-
 			// 藍新金流線上付款
 
 			//交易欄位
 			List<KeyValuePair<string, string>> TradeInfo = new List<KeyValuePair<string, string>>();
 			// 商店代號
-			TradeInfo.Add(new KeyValuePair<string, string>("MerchantID", inModel.MerchantID));
+			TradeInfo.Add(new KeyValuePair<string, string>("MerchantID", Config.GetSection("MerchantID").Value));
 			// 回傳格式
 			TradeInfo.Add(new KeyValuePair<string, string>("RespondType", "String"));
 			// TimeStamp
@@ -54,9 +59,11 @@ namespace WebApplication1.Service
 			}
 			string TradeInfoParam = string.Join("&", TradeInfo.Select(x => $"{x.Key}={x.Value}"));
 
+
+			SendToNewebPayOut outModel = new SendToNewebPayOut();
 			// API 傳送欄位
 			// 商店代號
-			outModel.MerchantID = inModel.MerchantID;
+			outModel.MerchantID = Config.GetSection("MerchantID").Value;
 			// 串接程式版本
 			outModel.Version = "2.0";
 			//交易資料 AES 加解密

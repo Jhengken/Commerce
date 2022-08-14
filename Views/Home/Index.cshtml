@@ -2,7 +2,7 @@
     ViewData["Title"] = "Home Page";
 }
 
-<h1>藍新金流串接範例</h1>
+<h1>金流串接範例</h1>
 <div class="card" id="app">
     <div class="card-header">
         API 欄位
@@ -10,8 +10,11 @@
     <div class="card-body">
         <div class="row mb-2">
             <div class="col-md-6">
-                <label class="form-label">商店代號</label>
-                <input type="text" class="form-control" id="MerchantID" v-model="addForm.MerchantID">
+                <label class="form-label">付款選項</label>
+                <select id="PayOption" class="form-control" name="PayOption" v-model="addForm.PayOption" >
+                    <option value="newbPay">藍新支付</option>
+                    <option selected="selected" value="ECPay">綠界支付</option>
+                </select>
             </div>
             <div class="col-md-6">
                 <label class="form-label">訂單編號</label>
@@ -37,20 +40,8 @@
                 <label class="form-label">付款人電子信箱</label>
                 <input type="text" class="form-control" id="Email" v-model="addForm.Email">
             </div>
-        </div>
-        <div class="row mb-2">
-            <div class="col-md-6">
-                <label class="form-label">付款選項</label>
-                <select id="PayOption" class="form-control" name="PayOption" v-model="addForm.PayOption" >
-                    <option value="newbPay">藍新支付</option>
-                    <option selected="selected" value="test2">text-2</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-            </div>
-        </div>
-      
-        <button type="button" class="btn btn-primary" v-on:click="SendToNewebPay('VACC')">ATM 付款</button>
+        </div>      
+        <button type="button" class="btn btn-primary" v-on:click="SendToNewebPay('VACC')">付款</button>
     </div>
 </div>
 <div id="divContent"></div>
@@ -61,12 +52,11 @@
                 return {
                     // 表單資料
                     addForm: {
-                        MerchantID: '@ViewData["MerchantID"]' //商品代號
-                        , MerchantOrderNo: '@ViewData["MerchantOrderNo"]'
+                        MerchantOrderNo: '@ViewData["MerchantOrderNo"]'
                         , ItemDesc: '測試商品'
                         , Amt: '100'
                         , ExpireDate: '@ViewData["ExpireDate"]'
-                        , PayOption: ''
+                        , PayOption: 'ECPay'
                         , Email: 'XXXX@aaa.com'
                     }
                 }
@@ -79,7 +69,6 @@
                     // 組合表單資料
                     var postData = {};
                     postData['ChannelID'] = ChannelID;
-                    postData['MerchantID'] = self.addForm.MerchantID;
                     postData['MerchantOrderNo'] = self.addForm.MerchantOrderNo;
                     postData['ItemDesc'] = self.addForm.ItemDesc;
                     postData['Amt'] = self.addForm.Amt;

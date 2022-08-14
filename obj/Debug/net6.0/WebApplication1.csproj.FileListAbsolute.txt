@@ -50,3 +50,5 @@ D:\work\GitHub\Commerce\obj\Debug\net6.0\WebApplication1.dll
 D:\work\GitHub\Commerce\obj\Debug\net6.0\ref\WebApplication1.dll
 D:\work\GitHub\Commerce\obj\Debug\net6.0\WebApplication1.pdb
 D:\work\GitHub\Commerce\obj\Debug\net6.0\WebApplication1.genruntimeconfig.cache
+D:\work\GitHub\Commerce\bin\Debug\net6.0\Newtonsoft.Json.dll
+D:\work\GitHub\Commerce\obj\Debug\net6.0\WebApplication1.csproj.CopyComplete

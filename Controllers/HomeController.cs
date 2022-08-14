@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Web;
 using WebApplication1.Models;
@@ -25,15 +27,15 @@ namespace WebApplication1.Controllers
 			{
 				case "newbPay":
 					return new NewebpayService();
-
+				case "ECPay":
+					return new ECPayService();
+					
 				default: throw new ArgumentException("No Such option");
 			}
 		}
 
 		public IActionResult Index()
         {
-            // 產生測試資訊
-            ViewData["MerchantID"] = Config.GetSection("MerchantID").Value;
             ViewData["MerchantOrderNo"] = DateTime.Now.ToString("yyyyMMddHHmmss");  //訂單編號
             ViewData["ExpireDate"] = DateTime.Now.AddDays(3).ToString("yyyyMMdd"); //繳費有效期限       
             return View();
@@ -78,14 +80,41 @@ namespace WebApplication1.Controllers
 		/// 支付通知網址
 		/// </summary>
 		/// <returns></returns>
-		public IActionResult CallbackNotify(string option)
+		public HttpResponseMessage CallbackNotify(string option)
 		{
 			var service = GetPayType(option);
 			var result = service.GetCallbackResult(Request.Form);
-			ViewData["ReceiveObj"] = result.ReceiveObj;
-			ViewData["TradeInfo"] = result.TradeInfo;
-			return View();
-		}
 
-	}
+			//TODO 支付成功後 可做後續訂單處理
+
+            return ResponseOK();
+        }
+
+       
+        /// <summary>
+        /// 回傳給 綠界 失敗
+        /// </summary>
+        /// <returns></returns>
+        private HttpResponseMessage ResponseError()
+        {
+            var response = new HttpResponseMessage();
+            response.Content = new StringContent("0|Error");
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+            return response;
+        }
+
+        /// <summary>
+        /// 回傳給 綠界 成功
+        /// </summary>
+        /// <returns></returns>
+        private HttpResponseMessage ResponseOK()
+        {
+            var response = new HttpResponseMessage();
+            response.Content = new StringContent("1|OK");
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+            return response;
+        }
+
+
+    }
 }
