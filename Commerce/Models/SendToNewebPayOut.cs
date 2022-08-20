@@ -7,4 +7,10 @@
 		public string TradeInfo { get; set; }
 		public string TradeSha { get; set; }
 	}
+
+	public class SendToNewebPayPeriod
+	{
+		public string MerchantID_ { get; set; }
+		public string PostData_ { get; set; }
+	}
 }

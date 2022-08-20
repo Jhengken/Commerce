@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\leochu\\Git\\Commerce\\Commerce\\Commerce.csproj": {}
+    "D:\\work\\GitHub\\Commerce\\Commerce\\Commerce.csproj": {}
   },
   "projects": {
-    "C:\\Users\\leochu\\Git\\Commerce\\Commerce\\Commerce.csproj": {
+    "D:\\work\\GitHub\\Commerce\\Commerce\\Commerce.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\leochu\\Git\\Commerce\\Commerce\\Commerce.csproj",
+        "projectUniqueName": "D:\\work\\GitHub\\Commerce\\Commerce\\Commerce.csproj",
         "projectName": "Commerce",
-        "projectPath": "C:\\Users\\leochu\\Git\\Commerce\\Commerce\\Commerce.csproj",
-        "packagesPath": "C:\\Users\\leochu\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\leochu\\Git\\Commerce\\Commerce\\obj\\",
+        "projectPath": "D:\\work\\GitHub\\Commerce\\Commerce\\Commerce.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "D:\\work\\GitHub\\Commerce\\Commerce\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "D:\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\leochu\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -22,8 +26,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "http://192.168.23.246/nuget/": {},
-          "http://192.168.23.247/nuget/": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -41,6 +43,12 @@
       "frameworks": {
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.1, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -59,7 +67,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.411\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.108\\RuntimeIdentifierGraph.json"
         }
       }
     }

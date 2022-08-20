@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -29,9 +30,28 @@ namespace Commerce.Controllers
 			switch (option)
 			{
 				case "newbPay":
+				case "newbPayPeriod":
 					return new NewebpayService();
 				case "ECPay":
+				case "ECPayPeriod":
 					return new ECPayService();
+
+				default: throw new ArgumentException("No Such option");
+			}
+		}
+
+		private string GetReturnValue(ICommerce service, SendToNewebPayIn inModel)
+		{
+			switch (inModel.PayOption)
+			{
+				case "newbPay":
+					return service.GetCallBack(inModel);
+				case "newbPayPeriod":
+					return service.GetPeriodCallBack(inModel);
+				case "ECPay":
+					return service.GetCallBack(inModel);
+				case "ECPayPeriod":
+					return service.GetPeriodCallBack(inModel);
 
 				default: throw new ArgumentException("No Such option");
 			}
@@ -48,9 +68,20 @@ namespace Commerce.Controllers
 		{
 			var service = GetPayType(inModel.PayOption);
 
-			return Json(service.GetCallBack(inModel));
+			return Json(GetReturnValue(service, inModel));
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		[HttpPost]
+		public async Task<string> UpdatePeriodCallBack(string orderNo, string PeriodN)
+		{
+			var result = await new NewebpayService().GetUpdatePeriodCallBackAsync(orderNo, PeriodN);
+
+			return result;
+		}
 
 		/// <summary>
 		/// 支付完成返回網址
@@ -66,6 +97,7 @@ namespace Commerce.Controllers
 			return View();
 		}
 
+
 		/// <summary>
 		/// 商店取號網址
 		/// </summary>
@@ -79,45 +111,7 @@ namespace Commerce.Controllers
 			return View();
 		}
 
-		/// <summary>
-		/// 支付通知網址
-		/// </summary>
-		/// <returns></returns>
-		public HttpResponseMessage CallbackNotify(string option)
-		{
-			var service = GetPayType(option);
-			var result = service.GetCallbackResult(Request.Form);
-
-			//TODO 支付成功後 可做後續訂單處理
-
-			return ResponseOK();
-		}
-
-
-		/// <summary>
-		/// 回傳給 綠界 失敗
-		/// </summary>
-		/// <returns></returns>
-		private HttpResponseMessage ResponseError()
-		{
-			var response = new HttpResponseMessage();
-			response.Content = new StringContent("0|Error");
-			response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
-			return response;
-		}
-
-		/// <summary>
-		/// 回傳給 綠界 成功
-		/// </summary>
-		/// <returns></returns>
-		private HttpResponseMessage ResponseOK()
-		{
-			var response = new HttpResponseMessage();
-			response.Content = new StringContent("1|OK");
-			response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
-			return response;
-		}
-
+	
 
 	}
 }

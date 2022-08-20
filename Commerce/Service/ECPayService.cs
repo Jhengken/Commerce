@@ -26,7 +26,7 @@ namespace Commerce.Service
             //需填入 你的網址
             var website = $"{Config.GetSection("HostURL").Value}/Home";
 
-            var order = new Dictionary<string, string>
+            var order = new Dictionary<string, object>
             {
                 //特店交易編號
                 { "MerchantTradeNo",  orderId},
@@ -59,7 +59,7 @@ namespace Commerce.Service
                 { "CustomField4",  ""},
 
                 //完成後發通知
-                { "ReturnURL",  $"{Config.GetSection("HostURL").Value}/Home/CallbackNotify?option=ECPay"},
+                { "ReturnURL",  $"{Config.GetSection("HostURL").Value}/Notify/CallbackNotify?option=ECPay"},
 
                 //付款完成後導頁
                 { "OrderResultURL", $"{Config.GetSection("HostURL").Value}/Home/CallbackReturn?option=ECPay"},
@@ -92,7 +92,92 @@ namespace Commerce.Service
 
             StringBuilder s = new StringBuilder();
             s.AppendFormat("<form id='payForm' action='{0}' method='post'>", "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5");
-            foreach (KeyValuePair<string, string> item in order)
+            foreach (KeyValuePair<string, object> item in order)
+            {
+                s.AppendFormat("<input type='hidden' name='{0}' value='{1}' />", item.Key, item.Value);
+            }
+
+            s.Append("</form>");
+
+            return s.ToString();
+        }
+
+        public string GetPeriodCallBack(SendToNewebPayIn inModel)
+        {
+            var orderId = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
+
+            //需填入 你的網址
+            var website = $"{Config.GetSection("HostURL").Value}/Home";
+
+            var order = new Dictionary<string, object>
+            {
+                //選擇預設付款方式 固定Credit
+                { "ChoosePayment",  "Credit"},
+
+                //交易金額
+                { "PeriodAmount",  int.Parse(inModel.Amt)},
+                
+                //自訂名稱欄位2
+                { "PeriodType ",  "D"},
+
+                //自訂名稱欄位2
+                { "Frequency",  1},
+
+                //自訂名稱欄位2
+                { "ExecTimes",  5},
+                
+                //完成後發通知
+                { "PeriodReturnURL",  $"{Config.GetSection("HostURL").Value}/Home/CallbackNotify?option=ECPay"},                
+              
+
+                //交易金額
+                { "TotalAmount",  int.Parse(inModel.Amt)},
+
+                //特店交易編號
+                { "MerchantTradeNo",  orderId},
+
+                //特店交易時間 yyyy/MM/dd HH:mm:ss
+                { "MerchantTradeDate",  DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")},
+
+                //交易描述
+                { "TradeDesc",  inModel.ItemDesc},
+
+                //商品名稱
+                { "ItemName", inModel.ItemDesc},              
+
+                //自訂名稱欄位1
+                { "Email",  inModel.Email},
+                
+               //完成後發通知
+                { "ReturnURL",  $"{Config.GetSection("HostURL").Value}/Notify/CallbackNotify?option=ECPay"},
+
+                //付款完成後導頁
+                { "OrderResultURL", $"{Config.GetSection("HostURL").Value}/Home/CallbackReturn?option=ECPay"},
+
+
+                //付款方式為 ATM 時，當使用者於綠界操作結束時，綠界回傳 虛擬帳號資訊至 此URL
+                { "PaymentInfoURL",$"{Config.GetSection("HostURL").Value}/Home/CallbackCustomer?option=ECPay"},
+
+                //付款方式為 ATM 時，當使用者於綠界操作結束時，綠界會轉址至 此URL。
+                { "ClientRedirectURL",  $"{Config.GetSection("HostURL").Value}/Home/CallbackCustomer?option=ECPay"},
+
+                //特店編號， 2000132 測試綠界編號
+                { "MerchantID",  "3002599"},
+
+                //交易類型 固定填入 aio
+                { "PaymentType",  "aio"},
+
+
+                //CheckMacValue 加密類型 固定填入 1 (SHA256)
+                { "EncryptType",  "1"},
+            };
+
+            //檢查碼
+            order["CheckMacValue"] = GetCheckMacValue(order);
+
+            StringBuilder s = new StringBuilder();
+            s.AppendFormat("<form id='payForm' action='{0}' method='post'>", "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5");
+            foreach (KeyValuePair<string, object> item in order)
             {
                 s.AppendFormat("<input type='hidden' name='{0}' value='{1}' />", item.Key, item.Value);
             }
@@ -107,7 +192,7 @@ namespace Commerce.Service
         /// </summary>
         /// <param name="order"></param>
         /// <returns></returns>
-        private string GetCheckMacValue(Dictionary<string, string> order)
+        private string GetCheckMacValue(Dictionary<string, object> order)
         {
             var param = order.Keys.OrderBy(x => x).Select(key => key + "=" + order[key]).ToList();
 

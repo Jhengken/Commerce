@@ -1,0 +1,16 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "d3719675-4513-4581-9640-4f4bc34798b6": {
+      "ProjectGuid": "d3719675-4513-4581-9640-4f4bc34798b6",
+      "DisplayName": "Commerce",
+      "ColorIndex": 0
+    },
+    "919fd655-f067-4ba2-b932-d926e85dd6b4": {
+      "ProjectGuid": "919fd655-f067-4ba2-b932-d926e85dd6b4",
+      "DisplayName": "指令碼文件",
+      "ColorIndex": 1
+    }
+  },
+  "NextColorIndex": 2
+}
