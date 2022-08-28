@@ -44,6 +44,7 @@
                 </div>
             </div>
             <button type="button" class="btn btn-primary" v-on:click="SendToNewebPay('VACC')">付款</button>
+            <button type="button" class="btn btn-primary" v-on:click="GetReturn()">查詢</button>
         </div>
     </div>
     <div id="divContent"></div>
@@ -89,6 +90,26 @@
                             success: function(returnObj) {
                                 $("#divContent").html(returnObj);
                                 $("#payForm").submit();
+                            },
+                            error: function(err) {
+                                alert(err.status + " " + err.statusText + '\n' + err.responseText);
+                            }
+                        });
+                    },
+                     GetReturn() {
+
+                        var postData = {};
+                        var self = this;
+                        postData['MerchantOrderNo'] = self.addForm.MerchantOrderNo;
+                        postData['Amt'] = self.addForm.Amt;
+
+                        $.ajax({
+                            url: '@Url.Content("~/Home/GetReturn")',
+                            method: 'POST',
+                            dataType: 'json',
+                            data: { inModel: postData},
+                            success: function(returnObj) {
+                                console.log(returnObj)
                             },
                             error: function(err) {
                                 alert(err.status + " " + err.statusText + '\n' + err.responseText);

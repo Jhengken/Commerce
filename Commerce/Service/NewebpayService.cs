@@ -154,6 +154,49 @@ namespace Commerce.Service
             return s.ToString();
         }
 
+        public async Task<NewebPayReturn<NewebPayQueryResult>> GetQueryCallBack(string orderId, string amt)
+        {
+
+            //需填入 你的網址
+            var website = $"{Config.GetSection("HostURL").Value}/Home";
+
+            var order = new Dictionary<string, string>
+            {
+                //特店交易編號
+                { "Amt",  amt},
+
+                //特店編號， 2000132 測試綠界編號
+                { "MerchantID",   "MS325135187"},
+
+                //特店交易編號
+                { "MerchantOrderNo",  orderId}
+
+            };
+
+            string TradeInfoParam = string.Join("&", order.Select(x => $"{x.Key}={x.Value}"));
+
+            string HashKey = "Zf086cln2XzdF38U7ouR6zdXJMCAip7i";//API 串接金鑰
+            string HashIV = "F7qMkL9mJIApMIjT";//API 串接密碼
+            string TradeInfoEncrypt = EncryptAESHex(TradeInfoParam, HashKey, HashIV);
+
+            order.Add("CheckValue", EncryptSHA256($"IV={HashIV}&{TradeInfoParam}&Key={HashKey}").ToUpper());
+            order.Add("Version", "1.3");
+            order.Add("RespondType", "JSON");
+            order.Add("TimeStamp", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+
+            var content = new FormUrlEncodedContent(order);
+
+            using (HttpClient client = new HttpClient())
+            {
+                HttpResponseMessage response = await client.PostAsync("https://core.spgateway.com/API/QueryTradeInfo", content);
+                var result = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<NewebPayReturn<NewebPayQueryResult>>(result);
+            }
+
+            return null;
+
+        }
+
         public async Task<string> GetUpdatePeriodCallBackAsync(string orderNo, string PeriodNo)
         {
             // 藍新金流線上付款
@@ -199,8 +242,8 @@ namespace Commerce.Service
         }
 
         public class PeriodReturn
-        { 
-            public string Period { get; set; }  
+        {
+            public string Period { get; set; }
         }
 
         /// <summary>
@@ -240,14 +283,14 @@ namespace Commerce.Service
         /// 支付通知網址
         /// </summary>
         /// <returns></returns>
-        public NewebPayReturn GetCallbackResult(IFormCollection form, string key)
+        public NewebPayReturn<NewebPayPeriodResult> GetCallbackResult(IFormCollection form, string key)
         {
 
             IConfiguration Config = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
             string HashKey = Config.GetSection("HashKey").Value;//API 串接金鑰
             string HashIV = Config.GetSection("HashIV").Value;//API 串接密碼
             string TradeInfoDecrypt = DecryptAESHex(form[key], HashKey, HashIV);
-            var result = JsonConvert.DeserializeObject<NewebPayReturn>(TradeInfoDecrypt);
+            var result = JsonConvert.DeserializeObject<NewebPayReturn<NewebPayPeriodResult>>(TradeInfoDecrypt);
             return result;
         }
 

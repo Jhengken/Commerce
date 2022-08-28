@@ -71,6 +71,13 @@ namespace Commerce.Controllers
 			return Json(GetReturnValue(service, inModel));
 		}
 
+		[HttpPost]
+		public async Task<IActionResult> GetReturn(SendToNewebPayIn inModel)
+		{
+			var obj = await  new  NewebpayService().GetQueryCallBack(inModel.MerchantOrderNo, inModel.Amt);
+			return Json(obj);
+		}
+
 		/// <summary>
 		/// 
 		/// </summary>
