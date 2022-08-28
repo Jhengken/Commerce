@@ -74,7 +74,7 @@ namespace Commerce.Controllers
 		[HttpPost]
 		public async Task<IActionResult> GetReturn(SendToNewebPayIn inModel)
 		{
-			var obj = await  new  NewebpayService().GetQueryCallBack(inModel.MerchantOrderNo, inModel.Amt);
+			var obj = await  new ECPayService().GetQueryCallBack(inModel.MerchantOrderNo, inModel.Amt);
 			return Json(obj);
 		}
 

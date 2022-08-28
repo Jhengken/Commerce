@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 using Commerce.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace Commerce.Service
 {
@@ -213,6 +218,27 @@ namespace Commerce.Service
             return checkValue.ToUpper();
         }
 
+        private string GetCheckMacValue(Dictionary<string, string> order)
+        {
+            var param = order.Keys.OrderBy(x => x).Select(key => key + "=" + order[key]).ToList();
+
+            var checkValue = string.Join("&", param);
+
+            //測試用的 HashKey
+            var hashKey = "dALAm7IGaqMq8ebH";
+
+            //測試用的 HashIV
+            var HashIV = "ZV1cJFulEf25mRCG";
+
+            checkValue = $"HashKey={hashKey}" + "&" + checkValue + $"&HashIV={HashIV}";
+
+            checkValue = HttpUtility.UrlEncode(checkValue).ToLower();
+
+            checkValue = EncryptSHA256(checkValue);
+
+            return checkValue.ToUpper();
+        }
+
         /// <summary>
         /// 支付通知網址
         /// </summary>
@@ -244,6 +270,47 @@ namespace Commerce.Service
             result.TradeInfo = receive.ToString();
 
             return result;
+        }
+
+        public async Task<NewebPayReturn<NewebPayQueryResult>> GetQueryCallBack(string orderId, string amt)
+        {
+            var dict = new Dictionary<string, string>
+            {
+                { "MerchantID", "1039919" },
+                { "MerchantTradeNo", "141871950171249" },
+                { "TimeStamp", DateTime.Now.ToString() }
+            };
+
+            dict.Add("CheckMacValue", GetCheckMacValue(dict));
+
+            var result = GetApiInvokeResult("https://payment.ecpay.com.tw/Cashier/QueryTradeInfo/V5", string.Join("&", dict.Select(a => a.Key + "=" + a.Value)), contentType: "application/x-www-form-urlencoded");
+            
+            return null;
+        }
+
+        public NewebPayReturn<NewebPayQueryResult> GetApiInvokeResult(string url,  string postData = null, string contentType = null)
+        {
+
+            var request = (HttpWebRequest)WebRequest.Create(url);
+
+            if (postData == null) throw new ArgumentNullException(nameof(postData));
+            var paramBytes = Encoding.UTF8.GetBytes(postData);
+
+            request.Method = "POST";
+            request.ContentType = string.IsNullOrWhiteSpace(contentType) ? "application/x-www-form-urlencoded" : contentType;
+            request.ContentLength = paramBytes.Length;
+            using (var stream = request.GetRequestStream())
+            {
+                stream.Write(paramBytes, 0, paramBytes.Length);
+            }
+            var response = (HttpWebResponse)request.GetResponse();
+            string a;
+            using (var sr = new StreamReader(response.GetResponseStream()))
+            {
+                a = sr.ReadToEnd();
+            }
+
+            return null;
         }
 
         /// <summary>
